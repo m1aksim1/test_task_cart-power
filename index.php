@@ -19,7 +19,7 @@
                 </p>
             </div>
             <div class="dropdown px-2 py-2">
-                <a href="#" class="btn btn-outline-light dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"   >
+                <a class="btn btn-outline-light dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
                         <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/>
                         <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/>
@@ -38,7 +38,7 @@
                 </ul>
             </div>
             <div class="dropdown py-2">
-                <a href="#" class="btn btn-outline-light dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"   >
+                <a class="btn btn-outline-light dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
                         <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                         <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
@@ -47,11 +47,21 @@
                 </a>
                 <ul class="dropdown-menu bg-dark text-white"  aria-labelledby="dropdownMenuLink">
                     <form class="mx-2" action="record.php" method="post" enctype="multipart/form-data">
-                        <input type="email" name="email" class="form-control my-1" aria-describedby="emailHelp" placeholder="Enter email" required>
-                        <input type="password" name="password" class="form-control my-1" placeholder="Enter password" required>
-                        <div class="d-flex justify-content-center my-1">
-                            <button type="submit" name="forAdmin" class="btn btn-outline-light"> Submit</button>
-                        </div>
+                        <?php
+                            if($_SESSION['admin_mode'] == 0) {
+                                echo ('<input type="text" name="admin_login" class="form-control my-1" aria-describedby="emailHelp" placeholder="Enter login" required>
+                                    <input type="password" name="admin_password" class="form-control my-1" placeholder="Enter password" required>
+                                    <div class="d-flex justify-content-center my-1">
+                                        <button type="submit" name="forAdmin" class="btn btn-outline-light">Submit</button>
+                                    </div>');
+                                }
+                            else{
+                               echo'<div class="d-flex justify-content-center my-1"> 
+                                        <button type="submit" name="forAdmin_exit" class="btn btn-outline-light">Exit</button>
+                                   </div>';
+                            }
+                        ?>
+
                     </form>
                 </ul>
             </div>
@@ -100,8 +110,7 @@
         <div class="text-white px-5 ">
             <?php
             include 'function.php';
-            outputTasksSort($_GET['page'],$_SESSION['username'],$_SESSION['email'],$_SESSION['admin_edit'],$_SESSION['completed']);
-            getCountPage();
+            outputTasks($_GET['page'],$_SESSION['username'],$_SESSION['email'],$_SESSION['admin_edit'],$_SESSION['completed']);
             ?>
             <div class="row justify-content-md-center" action="record.php" method="get">
                 <label class="col-1 px-5 pt-2">Page: </label>

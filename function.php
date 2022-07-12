@@ -28,6 +28,9 @@ function getCountPage(){
 function goToPage($page){
     include 'config.php';
     $countPage = getCountPage();
+    if(!isset($countPage)){
+        $countPage = 0;
+    }
     if($page>$countPage){
         header("Location: index.php?page=$countPage");
     }
@@ -70,32 +73,72 @@ function outputIcon($item){
             </div>');
     }
 }
-
-function outputTasks($thisPage){
-        include 'config.php';
-        if(isset($thisPage)){
-            $page = $_GET['page'];
-        }
-        else{
-            $page = 0;
-        }
-        $link = mysqli_connect($server, $user, $password, $database);
-        $number_task = $page * $page_per_window;
-        $sql = "SELECT * FROM `$table_name` LIMIT $number_task, $page_per_window";
-        $result = mysqli_query($link,$sql);
-        mysqli_close($link);
-        foreach ($result as $item):?>
-            <div class="row py-3">
-                <div class="border border-dark col">
+function outputTasks($thisPage, $username, $email, $admin_edit, $complated){
+    session_start();
+    if($_SESSION['admin_mode']){
+        outputTasksSortAdmin($thisPage, $username, $email, $admin_edit, $complated);
+    }
+    else{
+        outputTasksSort($thisPage, $username, $email, $admin_edit, $complated);
+    }
+}
+function changeTask($id,$text_task){
+    include 'config.php';
+    $link = mysqli_connect($server, $user, $password, $database);
+    $sql = "UPDATE `tasks` SET `text_task` = '$text_task' WHERE `id` = '$id'";
+    mysqli_query($link,$sql);
+    mysqli_close($link);
+}
+function outputTasksSortAdmin($thisPage, $username, $email, $admin_edit, $complated){
+    include 'config.php';
+    if(isset($thisPage)){
+        $page = $_GET['page'];
+    }
+    else{
+        $page = 0;
+    }
+    if($admin_edit == 2){
+        $admin_edit = null;
+    }
+    if($complated == 2){
+        $complated = null;
+    }
+    $link = mysqli_connect($server, $user, $password, $database);
+    $number_task = $page * $page_per_window;
+    $sql = "
+        SELECT * 
+        FROM `$table_name` 
+        WHERE (`email` = '$email' OR '$email' = '')
+        AND (`user_name` = '$username' OR '$username' = '')
+        AND (`admin_edit` = '$admin_edit' OR '$admin_edit' = '')
+        AND (`completed` = '$complated' OR '$complated' = '')
+        LIMIT  $number_task, $page_per_window";
+    $result = mysqli_query($link,$sql);
+    mysqli_close($link);
+    foreach ($result as $item):?>
+        <div class="row py-3">
+            <div class="border border-dark col">
                 Username: <?php echo $item['user_name'];?><br>
                 Email: <?php echo $item['email']; ?><br>
-                Task: <?php echo $item['text_task'];?>
-                </div>
-                <div class="px-2" style="width: 3%;">
-                   <?php outputIcon($item);?>
-                </div>
+                <form class="row" action='record.php?id=<?php echo $item['id']?>' method="post" class="mb-3">
+
+                    <div class="col">
+                        <textarea class="form-control" name="task_text" id="exampleFormControlTextarea1" rows="3"><?php echo $item['text_task'];?></textarea>
+                    </div>
+                    <div class="col-1 px-3" >
+                    <button type="submit" class="btn btn-secondary" name="admin_edit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right-square-fill" viewBox="0 0 16 16">
+                            <path d="M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v12zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1z"/>
+                        </svg>
+                    </button>
+                    </div>
+                </form>
             </div>
-        <?php endforeach;
+            <div class="px-2" style="width: 3%;">
+                <?php outputIcon($item);?>
+            </div>
+        </div>
+    <?php endforeach;
 }
 function outputTasksSort($thisPage, $username, $email, $admin_edit, $complated){
     include 'config.php';
