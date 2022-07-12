@@ -1,12 +1,25 @@
 <?php
 include 'config.php';
+include "function.php";
+if(isset($_POST['createTask'])){
+    createTask($_POST['email'],$_POST['username'],$_POST['task']);
+}
+else if(isset($_POST['forAdmin'])) {
 
-$link = mysqli_connect($server, $user, $password, $database);
-$email = $_POST['email'];
-$username = $_POST['username'];
-$task = $_POST['task'];
-
-$sql = "INSERT INTO `$table_name` (`email`, `user_name`, `text_task`) VALUES ('$email', '$username','$task');";
-$result = mysqli_query($link,$sql);
-mysqli_close($link);
+}
+else if(isset($_POST['page_input'])) {
+    $page = $_POST['page_input'];
+    goToPage($page);
+}
+if(isset($_POST['sort'])) {
+    session_start();
+    $_SESSION['username'] = $_POST['username'];
+    $_SESSION['email'] = $_POST['email'];
+    $_SESSION['admin_edit'] = $_POST['admin_edit'];
+    $_SESSION['completed'] = $_POST['completed'];
+    goToPage(0);
+}
+else{
+    outputTasks($_GET['page']);
+}
 ?>
