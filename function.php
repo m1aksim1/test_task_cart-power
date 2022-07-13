@@ -87,6 +87,8 @@ function changeTask($id,$text_task){
     $link = mysqli_connect($server, $user, $password, $database);
     $sql = "UPDATE `tasks` SET `text_task` = '$text_task' WHERE `id` = '$id'";
     mysqli_query($link,$sql);
+    $sql = "UPDATE `tasks` SET `admin_edit` = '1' WHERE `id` = '$id'";
+    mysqli_query($link,$sql);
     mysqli_close($link);
 }
 function outputTasksSortAdmin($thisPage, $username, $email, $admin_edit, $complated){
