@@ -29,7 +29,7 @@ if(isset($_POST['sort'])) {
     goToPage(0);
 }
 if(isset($_POST['admin_edit'])){
-    changeTask($_GET['id'],$_POST['task_text']);
+    changeTask($_GET['id'],$_POST['task_text'],$_POST['completed']);
     goToPage(0);
 }
 ?>
