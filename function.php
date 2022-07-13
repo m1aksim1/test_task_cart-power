@@ -82,12 +82,14 @@ function outputTasks($thisPage, $username, $email, $admin_edit, $complated){
         outputTasksSort($thisPage, $username, $email, $admin_edit, $complated);
     }
 }
-function changeTask($id,$text_task){
+function changeTask($id,$text_task,$completed){
     include 'config.php';
     $link = mysqli_connect($server, $user, $password, $database);
     $sql = "UPDATE `tasks` SET `text_task` = '$text_task' WHERE `id` = '$id'";
     mysqli_query($link,$sql);
     $sql = "UPDATE `tasks` SET `admin_edit` = '1' WHERE `id` = '$id'";
+    mysqli_query($link,$sql);
+    $sql = "UPDATE `tasks` SET `completed` = '$completed' WHERE `id` = '$id'";
     mysqli_query($link,$sql);
     mysqli_close($link);
 }
@@ -125,14 +127,21 @@ function outputTasksSortAdmin($thisPage, $username, $email, $admin_edit, $compla
                 <form class="row" action='record.php?id=<?php echo $item['id']?>' method="post" class="mb-3">
 
                     <div class="col">
-                        <textarea class="form-control" name="task_text" id="exampleFormControlTextarea1" rows="3"><?php echo $item['text_task'];?></textarea>
+                        <textarea class="form-control" name="task_text" id="exampleFormControlTextarea1" rows="4"><?php echo $item['text_task'];?></textarea>
                     </div>
                     <div class="col-1 px-3" >
-                    <button type="submit" class="btn btn-secondary" name="admin_edit">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right-square-fill" viewBox="0 0 16 16">
-                            <path d="M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v12zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1z"/>
-                        </svg>
-                    </button>
+                        <button type="submit" class="btn btn-secondary" name="admin_edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right-square-fill" viewBox="0 0 16 16">
+                                <path d="M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v12zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1z"/>
+                            </svg>
+                        </button>
+                        <label class="form-check-label" for="flexCheckDefault">
+                            complated
+                        </label>
+                        <select class="form-select px-2" name="completed" >
+                            <option value="1" <?php if($item['completed'] == 1) echo 'selected'?>>Yes</option>
+                            <option value="0" <?php if($item['completed'] == 0) echo 'selected'?>>No</option>
+                        </select>
                     </div>
                 </form>
             </div>
