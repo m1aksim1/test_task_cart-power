@@ -3,6 +3,7 @@ include 'config.php';
 include "function.php";
 if(isset($_POST['createTask'])){
     createTask($_POST['email'],$_POST['username'],$_POST['task']);
+    goToPage(getCountPage());
 }
 else if(isset($_POST['forAdmin'])) {
     if($_POST['admin_login'] == $admin_login and $_POST['admin_password'] == $admin_password){

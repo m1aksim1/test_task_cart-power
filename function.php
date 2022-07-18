@@ -1,24 +1,21 @@
 <?php
+include "config.php";
 function getCountPage(){
-    include 'config.php';
+    global $page_per_window,$table_name,$server, $user, $password, $database;
     $link = mysqli_connect($server, $user, $password, $database);
-    if($admin_edit == 2){
-        $admin_edit = null;
-    }
-    if($complated == 2){
-        $complated = null;
-    }
     $sql = "
         SELECT COUNT(*) 
-        FROM `$table_name` 
-        WHERE (`email` = '$email' OR '$email' = '')
-        AND (`user_name` = '$username' OR '$username' = '')
-        AND (`admin_edit` = '$admin_edit' OR '$admin_edit' = '')
-        AND (`completed` = '$complated' OR '$complated' = '')";
+        FROM `$table_name` ";
     $result = mysqli_query($link,$sql);
     mysqli_close($link);
     if($result) {
-        $countPage = floor(mysqli_fetch_row($result)[0] / $page_per_window);
+        $countTask = mysqli_fetch_row($result)[0];
+        if($countTask % $page_per_window != 0) {
+            $countPage = floor($countTask / $page_per_window);
+        }
+        else{
+            $countPage = floor($countTask / $page_per_window)-1;
+        }
         return $countPage;
     }
     else{
@@ -26,7 +23,6 @@ function getCountPage(){
     }
 }
 function goToPage($page){
-    include 'config.php';
     $countPage = getCountPage();
     if(!isset($countPage)){
         $countPage = 0;
@@ -42,11 +38,17 @@ function goToPage($page){
     }
 }
 function createTask($email,$username,$task){
-    include 'config.php';
+    session_start();
+    global $table_name,$server, $user, $password, $database;
     $link = mysqli_connect($server, $user, $password, $database);
-
     $sql = "INSERT INTO `$table_name` (`email`, `user_name`, `text_task`) VALUES ('$email', '$username','$task');";
     $result = mysqli_query($link,$sql);
+    if($result){
+        $_SESSION['task_create_success'] = true;
+    }
+    else{
+        $_SESSION['task_create_success'] = false;
+    }
     mysqli_close($link);
     header("Location: index.php");
 }
@@ -83,20 +85,20 @@ function outputTasks($thisPage, $username, $email, $admin_edit, $complated){
     }
 }
 function changeTask($id,$text_task,$completed){
-    include 'config.php';
+    global $server, $user, $password, $database;
     $link = mysqli_connect($server, $user, $password, $database);
-    $sql = "UPDATE `tasks` SET `text_task` = '$text_task' WHERE `id` = '$id'";
-    mysqli_query($link,$sql);
-    $sql = "UPDATE `tasks` SET `admin_edit` = '1' WHERE `id` = '$id'";
-    mysqli_query($link,$sql);
-    $sql = "UPDATE `tasks` SET `completed` = '$completed' WHERE `id` = '$id'";
+    $sql = "UPDATE `tasks` SET `text_task` = '$text_task',`admin_edit` = '1', `completed` = '$completed' WHERE `id` = '$id'";
     mysqli_query($link,$sql);
     mysqli_close($link);
 }
 function outputTasksSortAdmin($thisPage, $username, $email, $admin_edit, $complated){
-    include 'config.php';
+    global $page_per_window,$table_name,$server, $user, $password, $database;
+    $link = mysqli_connect($server, $user, $password, $database);
     if(isset($thisPage)){
         $page = $_GET['page'];
+        if($page==null){
+            $page = 0;
+        }
     }
     else{
         $page = 0;
@@ -107,7 +109,6 @@ function outputTasksSortAdmin($thisPage, $username, $email, $admin_edit, $compla
     if($complated == 2){
         $complated = null;
     }
-    $link = mysqli_connect($server, $user, $password, $database);
     $number_task = $page * $page_per_window;
     $sql = "
         SELECT * 
@@ -136,7 +137,7 @@ function outputTasksSortAdmin($thisPage, $username, $email, $admin_edit, $compla
                             </svg>
                         </button>
                         <label class="form-check-label" for="flexCheckDefault">
-                            complated
+                            completed
                         </label>
                         <select class="form-select px-2" name="completed" >
                             <option value="1" <?php if($item['completed'] == 1) echo 'selected'?>>Yes</option>
@@ -152,9 +153,13 @@ function outputTasksSortAdmin($thisPage, $username, $email, $admin_edit, $compla
     <?php endforeach;
 }
 function outputTasksSort($thisPage, $username, $email, $admin_edit, $complated){
-    include 'config.php';
+    global $page_per_window,$table_name,$server, $user, $password, $database;
+    $link = mysqli_connect($server, $user, $password, $database);
     if(isset($thisPage)){
         $page = $_GET['page'];
+        if($page==null){
+            $page = 0;
+        }
     }
     else{
         $page = 0;
@@ -165,7 +170,6 @@ function outputTasksSort($thisPage, $username, $email, $admin_edit, $complated){
     if($complated == 2){
         $complated = null;
     }
-    $link = mysqli_connect($server, $user, $password, $database);
     $number_task = $page * $page_per_window;
     $sql = "
         SELECT * 
