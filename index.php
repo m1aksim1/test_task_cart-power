@@ -18,6 +18,21 @@
                     </svg>book tasks
                 </p>
             </div>
+            <?php
+                if(isset($_SESSION['task_create_success'])) {
+                    if ($_SESSION['task_create_success']) {
+                        echo '<div class="alert alert-success" role="alert">
+                            the task has been created
+                        </div>';
+                        $_SESSION['task_create_success'] = null;
+                    } elseif (!$_SESSION['task_create_success']) {
+                        echo '<div class="alert alert-danger " role="alert">
+                            the task is not created
+                      </div>';
+                        $_SESSION['task_create_success'] = null;
+                    }
+                }
+            ?>
             <div class="dropdown px-2 py-2">
                 <a class="btn btn-outline-light dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
@@ -112,14 +127,22 @@
             include 'function.php';
             outputTasks($_GET['page'],$_SESSION['username'],$_SESSION['email'],$_SESSION['admin_edit'],$_SESSION['completed']);
             ?>
-            <div class="row justify-content-md-center" action="record.php" method="get">
+            <form class="row justify-content-md-center pb-2" action="record.php" method="post">
                 <label class="col-1 px-5 pt-2">Page: </label>
-                <form class=" pt-1 mb-3 me-4 pe-3" style="width: 90px" action="record.php" method="post">
-                    <input type="number" name="page_input" min="0" max = "<?php echo(getCountPage());?>" value="<?php echo($_GET['page']) ?>" class="form-control">
-                </form>
-            </div>
+                    <div class="col-1">
+                    <input type="number" name="page_input" min="0" max = "<?php echo(getCountPage());?>" value="<?php if(isset($_GET['page'])){echo($_GET['page']);}else{echo '0';} ?>" class="form-control">
+                    </div>
+                    <div class="col-1">
+                        <button type="submit" class="btn btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-arrow-right-square-fill" viewBox="0 0 16 16">
+                                <path d="M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v12zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1z"/>
+                            </svg>
+                        </button>
+                    </div>
+            </form>
         </div>
     </div>
+
 </div>
 </body>
 </html>

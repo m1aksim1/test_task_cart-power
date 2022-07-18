@@ -1,6 +1,6 @@
 <?php
 function getCountPage(){
-    include 'config.php';
+    include "config.php";
     $link = mysqli_connect($server, $user, $password, $database);
     if($admin_edit == 2){
         $admin_edit = null;
@@ -18,7 +18,13 @@ function getCountPage(){
     $result = mysqli_query($link,$sql);
     mysqli_close($link);
     if($result) {
-        $countPage = floor(mysqli_fetch_row($result)[0] / $page_per_window);
+        $countTask = mysqli_fetch_row($result)[0];
+        if($countTask % $page_per_window != 0) {
+            $countPage = floor($countTask / $page_per_window);
+        }
+        else{
+            $countPage = floor($countTask / $page_per_window)-1;
+        }
         return $countPage;
     }
     else{
@@ -26,7 +32,7 @@ function getCountPage(){
     }
 }
 function goToPage($page){
-    include 'config.php';
+    include "config.php";
     $countPage = getCountPage();
     if(!isset($countPage)){
         $countPage = 0;
@@ -42,11 +48,18 @@ function goToPage($page){
     }
 }
 function createTask($email,$username,$task){
-    include 'config.php';
+    include "config.php";
+    session_start();
     $link = mysqli_connect($server, $user, $password, $database);
 
     $sql = "INSERT INTO `$table_name` (`email`, `user_name`, `text_task`) VALUES ('$email', '$username','$task');";
     $result = mysqli_query($link,$sql);
+    if($result){
+        $_SESSION['task_create_success'] = true;
+    }
+    else{
+        $_SESSION['task_create_success'] = false;
+    }
     mysqli_close($link);
     header("Location: index.php");
 }
@@ -83,18 +96,13 @@ function outputTasks($thisPage, $username, $email, $admin_edit, $complated){
     }
 }
 function changeTask($id,$text_task,$completed){
-    include 'config.php';
     $link = mysqli_connect($server, $user, $password, $database);
-    $sql = "UPDATE `tasks` SET `text_task` = '$text_task' WHERE `id` = '$id'";
-    mysqli_query($link,$sql);
-    $sql = "UPDATE `tasks` SET `admin_edit` = '1' WHERE `id` = '$id'";
-    mysqli_query($link,$sql);
-    $sql = "UPDATE `tasks` SET `completed` = '$completed' WHERE `id` = '$id'";
+    $sql = "UPDATE `tasks` SET `text_task` = '$text_task',`admin_edit` = '1', `completed` = '$completed' WHERE `id` = '$id'";
     mysqli_query($link,$sql);
     mysqli_close($link);
 }
 function outputTasksSortAdmin($thisPage, $username, $email, $admin_edit, $complated){
-    include 'config.php';
+    include "config.php";
     if(isset($thisPage)){
         $page = $_GET['page'];
     }
@@ -152,7 +160,7 @@ function outputTasksSortAdmin($thisPage, $username, $email, $admin_edit, $compla
     <?php endforeach;
 }
 function outputTasksSort($thisPage, $username, $email, $admin_edit, $complated){
-    include 'config.php';
+    include "config.php";
     if(isset($thisPage)){
         $page = $_GET['page'];
     }
